@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wake Lock Demo</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #111;
+      color: white;
+    }
+
+    button {
+      padding: 15px 25px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .on {
+      background: limegreen;
+    }
+
+    .off {
+      background: crimson;
+      color: white;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Screen Wake Lock API</h1>
+  <p>This keeps your screen awake while enabled.</p>
+
+  <button class="on" onclick="enableWakeLock()">Enable Wake Lock</button>
+  <button class="off" onclick="disableWakeLock()">Disable Wake Lock</button>
+
+  <div id="status">Status: Not active</div>
+
+  <script>
+    let wakeLock = null;
+
+    async function enableWakeLock() {
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        document.getElementById("status").textContent =
+          "Status: Wake Lock is ACTIVE ✅";
+
+        wakeLock.addEventListener("release", () => {
+          document.getElementById("status").textContent =
+            "Status: Wake Lock was released ❌";
+        });
+
+      } catch (err) {
+        document.getElementById("status").textContent =
+          "Error: " + err.message;
+      }
+    }
+
+    function disableWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+        document.getElementById("status").textContent =
+          "Status: Wake Lock manually disabled ❌";
+      }
+    }
+
+    // Auto re-enable if tab becomes visible again
+    document.addEventListener("visibilitychange", async () => {
+      if (wakeLock !== null && document.visibilityState === "visible") {
+        wakeLock = await navigator.wakeLock.request("screen");
+        document.getElementById("status").textContent =
+          "Status: Wake Lock re-enabled after tab switch ✅";
+      }
+    });
+  </script>
+</body>
+</html>
