@@ -55,16 +55,16 @@
       try {
         // Request fullscreen
         await document.documentElement.requestFullscreen();
-        
+
         // Lock Escape key to prevent exiting fullscreen
         if (navigator.keyboard) {
           await navigator.keyboard.lock(["Escape"]);
         }
-        
+
         // Request wake lock
         wakeLock = await navigator.wakeLock.request("screen");
         document.getElementById("status").textContent =
-          "Status: Wake Lock is active (Escape locked)";
+          "Status: Wake Lock is active";
 
         wakeLock.addEventListener("release", () => {
           document.getElementById("status").textContent =
@@ -87,12 +87,12 @@
         wakeLock = null;
         document.getElementById("status").textContent =
           "Status: Wake Lock manually disabled";
-        
+
         // Unlock keyboard
         if (navigator.keyboard) {
           navigator.keyboard.unlock();
         }
-        
+
         // Exit fullscreen
         if (document.fullscreenElement) {
           document.exitFullscreen();
@@ -105,14 +105,14 @@
       if (wakeLock !== null && document.visibilityState === "visible") {
         wakeLock = await navigator.wakeLock.request("screen");
         await document.documentElement.requestFullscreen();
-        
+
         // Lock Escape key again
         if (navigator.keyboard) {
           await navigator.keyboard.lock(["Escape"]);
         }
-        
+
         document.getElementById("status").textContent =
-          "Status: Wake Lock re-enabled after tab switch ✅ (Escape locked)";
+          "Status: Wake Lock re-enabled after tab switch";
       }
     });
   </script>
