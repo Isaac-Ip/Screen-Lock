@@ -53,13 +53,26 @@
 
     async function enableWakeLock() {
       try {
+        // Request fullscreen
+        await document.documentElement.requestFullscreen();
+        
+        // Lock Escape key to prevent exiting fullscreen
+        if (navigator.keyboard) {
+          await navigator.keyboard.lock(["Escape"]);
+        }
+        
+        // Request wake lock
         wakeLock = await navigator.wakeLock.request("screen");
         document.getElementById("status").textContent =
-          "Status: Wake Lock is ACTIVE ✅";
+          "Status: Wake Lock is active (Escape locked)";
 
         wakeLock.addEventListener("release", () => {
           document.getElementById("status").textContent =
-            "Status: Wake Lock was released ❌";
+            "Status: Wake Lock was released";
+          // Exit fullscreen when wake lock is released
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          }
         });
 
       } catch (err) {
@@ -73,7 +86,17 @@
         wakeLock.release();
         wakeLock = null;
         document.getElementById("status").textContent =
-          "Status: Wake Lock manually disabled ❌";
+          "Status: Wake Lock manually disabled";
+        
+        // Unlock keyboard
+        if (navigator.keyboard) {
+          navigator.keyboard.unlock();
+        }
+        
+        // Exit fullscreen
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
       }
     }
 
@@ -81,8 +104,15 @@
     document.addEventListener("visibilitychange", async () => {
       if (wakeLock !== null && document.visibilityState === "visible") {
         wakeLock = await navigator.wakeLock.request("screen");
+        await document.documentElement.requestFullscreen();
+        
+        // Lock Escape key again
+        if (navigator.keyboard) {
+          await navigator.keyboard.lock(["Escape"]);
+        }
+        
         document.getElementById("status").textContent =
-          "Status: Wake Lock re-enabled after tab switch ✅";
+          "Status: Wake Lock re-enabled after tab switch ✅ (Escape locked)";
       }
     });
   </script>
